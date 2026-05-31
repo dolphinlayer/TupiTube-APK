@@ -1,669 +1,234 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TupiTube</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: '#FF6B00',
-            'brand-deep': '#CC5500',
-            'brand-glow': '#FF8C3A',
-            surface: '#111111',
-            'surface-2': '#1A1A1A',
-            'surface-3': '#222222',
-            'surface-4': '#2C2C2C',
-            muted: '#666666',
-            subtle: '#3A3A3A',
-          },
-          fontFamily: {
-            display: ['Bebas Neue', 'sans-serif'],
-            body: ['DM Sans', 'sans-serif'],
-          },
-          boxShadow: {
-            'brand-sm': '0 0 12px rgba(255,107,0,0.25)',
-            'brand-md': '0 0 28px rgba(255,107,0,0.35)',
-            'brand-lg': '0 0 60px rgba(255,107,0,0.20)',
-            'inner-dark': 'inset 0 1px 0 rgba(255,255,255,0.04)',
-          },
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TupiTube</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Premium Turuncu & Koyu Tema Özelleştirmeleri */
+        body {
+            background-color: #0d0d0d;
+            color: #e5e5e5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-      }
-    }
-  </script>
-
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      background-color: #111111;
-      color: #EFEFEF;
-      font-family: 'DM Sans', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* Subtle noise texture overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.5;
-    }
-
-    /* ── TOP BAR ── */
-    .topbar {
-      background: rgba(17,17,17,0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255,107,0,0.12);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-
-    /* ── LOGO ── */
-    .logo-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-
-    .logo-img {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      object-fit: cover;
-      border: 1.5px solid rgba(255,107,0,0.55);
-      box-shadow: 0 0 14px rgba(255,107,0,0.30);
-    }
-
-    .logo-text {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      letter-spacing: 0.06em;
-      background: linear-gradient(135deg, #FF8C3A 0%, #FF6B00 60%, #CC5500 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1;
-    }
-
-    /* ── SEARCH BAR ── */
-    .search-wrap {
-      position: relative;
-      flex: 1;
-      max-width: 520px;
-    }
-
-    .search-input {
-      width: 100%;
-      background: #1A1A1A;
-      border: 1px solid #2C2C2C;
-      border-radius: 12px;
-      padding: 10px 48px 10px 16px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.875rem;
-      color: #EFEFEF;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .search-input::placeholder { color: #555; }
-
-    .search-input:focus {
-      border-color: rgba(255,107,0,0.55);
-      box-shadow: 0 0 0 3px rgba(255,107,0,0.10);
-    }
-
-    /* ── FETCH BUTTON ── */
-    .fetch-btn {
-      position: absolute;
-      right: 6px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: linear-gradient(135deg, #FF8C3A, #FF6B00);
-      border: none;
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
-      color: #fff;
-      cursor: pointer;
-      transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
-      white-space: nowrap;
-    }
-
-    .fetch-btn:hover {
-      opacity: 0.88;
-      transform: translateY(-50%) scale(1.04);
-      box-shadow: 0 0 18px rgba(255,107,0,0.45);
-    }
-
-    .fetch-btn:active {
-      transform: translateY(-50%) scale(0.97);
-    }
-
-    /* ── VIDEO PLAYER ── */
-    .player-container {
-      position: relative;
-      width: 100%;
-      background: #0A0A0A;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .player-container::before {
-      content: '';
-      display: block;
-      padding-top: 56.25%; /* 16:9 */
-    }
-
-    .player-container video,
-    .player-idle-screen {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .player-container video {
-      object-fit: contain;
-      background: #000;
-    }
-
-    /* idle screen */
-    .player-idle-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      background: radial-gradient(ellipse at center, #1c1010 0%, #0A0A0A 70%);
-    }
-
-    .idle-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: rgba(255,107,0,0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1.5px solid rgba(255,107,0,0.25);
-    }
-
-    .idle-icon svg {
-      width: 24px;
-      height: 24px;
-      fill: rgba(255,107,0,0.7);
-    }
-
-    .idle-text {
-      font-size: 0.8rem;
-      color: #444;
-      letter-spacing: 0.04em;
-    }
-
-    /* ── LOADING OVERLAY ── */
-    .loading-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(10,10,10,0.88);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      z-index: 20;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-    }
-
-    .loading-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .loading-spinner-wrap {
-      position: relative;
-      width: 80px;
-      height: 80px;
-    }
-
-    .spinner-ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 2.5px solid transparent;
-      border-top-color: #FF6B00;
-      animation: spinRing 0.9s linear infinite;
-    }
-
-    .spinner-ring-2 {
-      inset: 8px;
-      border-top-color: rgba(255,107,0,0.35);
-      animation: spinRing 1.4s linear infinite reverse;
-    }
-
-    .loading-logo {
-      position: absolute;
-      inset: 14px;
-      border-radius: 50%;
-      object-fit: cover;
-      animation: pulseLogo 1.5s ease-in-out infinite;
-    }
-
-    @keyframes spinRing {
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes pulseLogo {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50%       { opacity: 1;   transform: scale(1.07); }
-    }
-
-    .loading-label {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.05rem;
-      letter-spacing: 0.14em;
-      color: rgba(255,107,0,0.85);
-    }
-
-    /* ── VIDEO DETAILS ── */
-    .detail-card {
-      background: #1A1A1A;
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 14px;
-      padding: 18px 20px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-    }
-
-    .detail-title {
-      font-size: 1rem;
-      font-weight: 600;
-      line-height: 1.4;
-      color: #EDEDED;
-      margin-bottom: 10px;
-    }
-
-    .detail-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(255,107,0,0.10);
-      border: 1px solid rgba(255,107,0,0.20);
-      border-radius: 6px;
-      padding: 3px 9px;
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: #FF8C3A;
-      letter-spacing: 0.03em;
-    }
-
-    .stat-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.78rem;
-      color: #666;
-    }
-
-    .stat-item svg { flex-shrink: 0; }
-
-    /* ── DIVIDER ── */
-    .brand-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,107,0,0.30), transparent);
-      margin: 0;
-    }
-
-    /* ── BOTTOM NAV ── */
-    .bottom-nav {
-      background: rgba(17,17,17,0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      padding: 10px 0;
-      cursor: pointer;
-      flex: 1;
-      transition: color 0.15s;
-      color: #444;
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-    }
-
-    .nav-item.active { color: #FF6B00; }
-
-    .nav-item svg { width: 20px; height: 20px; }
-
-    /* ── ERROR TOAST ── */
-    .toast {
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #2C1A0E;
-      border: 1px solid rgba(255,107,0,0.35);
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-size: 0.82rem;
-      color: #FF8C3A;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s, transform 0.2s;
-      z-index: 100;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #2C2C2C; border-radius: 4px; }
-  </style>
+        .orange-glow {
+            box-shadow: 0 0 15px rgba(255, 107, 0, 0.2);
+        }
+        /* Gizli Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="relative z-10">
+<body class="max-w-md mx-auto min-h-screen flex flex-col relative pb-10">
 
-  <!-- ═══════════════════ TOP BAR ═══════════════════ -->
-  <header class="topbar px-4 py-3">
-    <div class="max-w-2xl mx-auto flex items-center gap-3">
-
-      <!-- Logo -->
-      <div class="logo-wrap">
-        <img src="tupi1.jpg" alt="TupiTube" class="logo-img" onerror="this.style.display='none'" />
-        <span class="logo-text">TupiTube</span>
-      </div>
-
-      <!-- Search -->
-      <div class="search-wrap">
-        <input
-          id="urlInput"
-          type="text"
-          class="search-input"
-          placeholder="Paste YouTube URL…"
-          autocomplete="off"
-          spellcheck="false"
-        />
-        <button class="fetch-btn" id="fetchBtn" onclick="fetchVideo()">Fetch</button>
-      </div>
-
-    </div>
-  </header>
-
-  <div class="brand-divider"></div>
-
-  <!-- ═══════════════════ MAIN ═══════════════════ -->
-  <main class="max-w-2xl mx-auto px-4 pt-5 pb-24 relative z-10">
-
-    <!-- ── Player ── -->
-    <div class="player-container mb-5" id="playerWrap">
-
-      <!-- Idle screen -->
-      <div class="player-idle-screen" id="idleScreen">
-        <div class="idle-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
+    <!-- TOP BAR (Logo ve Arama) -->
+    <header class="sticky top-0 bg-[#141414] p-4 border-b border-[#262626] z-40 orange-glow">
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+                <img src="tupi1.jpg" alt="Logo" class="h-8 w-auto object-contain rounded">
+                <span class="text-xl font-bold tracking-wider text-white">Tupi<span class="text-[#FF6B00]">Tube</span></span>
+            </div>
         </div>
-        <p class="idle-text">Enter a URL above to stream</p>
-      </div>
-
-      <!-- Video element -->
-      <video
-        id="videoPlayer"
-        controls
-        playsinline
-        style="display:none;"
-      ></video>
-
-      <!-- Loading overlay -->
-      <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner-wrap">
-          <div class="spinner-ring"></div>
-          <div class="spinner-ring spinner-ring-2"></div>
-          <img src="tupi2.jpg" alt="" class="loading-logo" onerror="this.style.display='none'" />
+        <div class="flex space-x-2">
+            <input type="text" id="searchInput" placeholder="Video adı veya YouTube URL yapıştır..." 
+                   class="flex-1 bg-[#1f1f1f] border border-[#333] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#FF6B00] transition">
+            <button onclick="handleSearch()" class="bg-[#FF6B00] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#e05e00] active:scale-95 transition">
+                Ara
+            </button>
         </div>
-        <span class="loading-label">Fetching Stream…</span>
-      </div>
+    </header>
 
+    <!-- MAIN PLAYER AREA -->
+    <main class="flex-1 p-4 space-y-4">
+        <!-- Video Oynatıcı Kutusu -->
+        <div class="bg-[#141414] rounded-xl overflow-hidden border border-[#262626]">
+            <video id="mainPlayer" controls class="w-full aspect-video bg-black"></video>
+            <div class="p-3">
+                <h2 id="videoTitle" class="text-base font-semibold text-white line-clamp-2">Henüz bir video oynatılmıyor</h2>
+                
+                <!-- Aksiyon Butonları (İndir) -->
+                <div class="flex justify-end mt-3 pt-2 border-t border-[#262626]">
+                    <button id="downloadBtn" onclick="downloadCurrentVideo()" class="hidden items-center space-x-2 bg-[#262626] border border-[#333] text-[#FF6B00] px-4 py-1.5 rounded-full text-xs font-medium hover:bg-[#333] transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="box-shadow 0 19 9l-7 7-7-7m14 6v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8"></path></svg>
+                        <span>Cihaza İndir</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ARAMA SONUÇLARI -->
+        <section id="searchResultsSection" class="hidden space-y-3">
+            <h3 class="text-sm font-bold text-[#FF6B00] uppercase tracking-wider">Arama Sonuçları</h3>
+            <div id="searchResults" class="space-y-3"></div>
+        </section>
+
+        <!-- GEÇMİŞ VİDEOLAR -->
+        <section class="space-y-3">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">İzleme Geçmişi</h3>
+                <button onclick="clearHistory()" class="text-xs text-red-500 hover:underline">Temizle</button>
+            </div>
+            <div id="historyList" class="space-y-3"></div>
+        </section>
+    </main>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center space-y-4">
+        <img src="tupi2.jpg" alt="Yükleniyor" class="w-16 h-16 object-contain animate-spin rounded-full border-2 border-[#FF6B00]">
+        <p class="text-sm text-gray-400 font-medium">Video çözülüyor, bekle bra...</p>
     </div>
 
-    <!-- ── Video Details ── -->
-    <div class="detail-card" id="detailCard">
+    <!-- JAVASCRIPT MANTIĞI -->
+    <script>
+        const BACKEND_URL = 'http://localhost:3000';
+        let currentStreamUrl = '';
+        let currentVideoTitle = '';
 
-      <div class="flex items-start justify-between gap-3 mb-1">
-        <h2 class="detail-title" id="videoTitle">No video loaded</h2>
-        <span class="detail-badge flex-shrink-0" id="qualityBadge">
-          <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
-            <circle cx="4" cy="4" r="4"/>
-          </svg>
-          HD
-        </span>
-      </div>
+        // Sayfa açıldığında geçmişi yükle
+        document.addEventListener('DOMContentLoaded', renderHistory);
 
-      <div class="stat-row">
+        // Arama veya URL tetikleyici ana fonksiyon
+        async function handleSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
 
-        <div class="stat-item">
-          <!-- eye icon -->
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-          <span id="viewCount">—</span>
-        </div>
-
-        <div class="stat-item">
-          <!-- clock icon -->
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-          <span id="videoDuration">—</span>
-        </div>
-
-        <div class="stat-item">
-          <!-- wifi/stream icon -->
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
-            <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
-            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
-            <line x1="12" y1="20" x2="12.01" y2="20"/>
-          </svg>
-          <span id="streamStatus">Ready</span>
-        </div>
-
-      </div>
-
-    </div>
-
-  </main>
-
-  <!-- ═══════════════════ BOTTOM NAV ═══════════════════ -->
-  <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-50">
-    <div class="max-w-2xl mx-auto flex items-center">
-
-      <div class="nav-item active" id="navHome">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        Home
-      </div>
-
-      <div class="nav-item" id="navSearch">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        Explore
-      </div>
-
-      <div class="nav-item" id="navHistory">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-3.5"/>
-          <polyline points="3 3 3 11 11 11"/>
-        </svg>
-        History
-      </div>
-
-      <div class="nav-item" id="navProfile">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-        Profile
-      </div>
-
-    </div>
-  </nav>
-
-  <!-- ═══════════════════ TOAST ═══════════════════ -->
-  <div class="toast" id="errorToast"></div>
-
-  <!-- ═══════════════════ SCRIPT ═══════════════════ -->
-  <script>
-    /* ─ Mock metadata pool ─ */
-    const mockTitles = [
-      'Incredible Nature Documentary – Full Episode',
-      'Top 10 Moments You Won\'t Believe',
-      'Deep Dive: The Future of Technology',
-      'Epic Street Food Tour Around the World',
-      'How to Build Anything from Scratch',
-    ];
-    const mockViews = ['1.2M views', '847K views', '3.4M views', '512K views', '2.1M views'];
-    const mockDurations = ['12:34', '8:02', '24:11', '6:55', '18:47'];
-
-    function pickRandom(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-    /* ─ Toast helper ─ */
-    function showToast(msg) {
-      const t = document.getElementById('errorToast');
-      t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3500);
-    }
-
-    /* ─ Nav switching (cosmetic) ─ */
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        item.classList.add('active');
-      });
-    });
-
-    /* ─ Enter key triggers fetch ─ */
-    document.getElementById('urlInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') fetchVideo();
-    });
-
-    /* ─ Main fetch logic ─ */
-    async function fetchVideo() {
-      const inputEl = document.getElementById('urlInput');
-      const inputUrl = inputEl.value.trim();
-
-      if (!inputUrl) {
-        showToast('Please enter a YouTube URL first.');
-        return;
-      }
-
-      // Basic YouTube URL check
-      if (!inputUrl.includes('youtube.com') && !inputUrl.includes('youtu.be')) {
-        showToast('Doesn\'t look like a YouTube URL.');
-        return;
-      }
-
-      const overlay   = document.getElementById('loadingOverlay');
-      const idleScr   = document.getElementById('idleScreen');
-      const video     = document.getElementById('videoPlayer');
-      const statusEl  = document.getElementById('streamStatus');
-      const fetchBtn  = document.getElementById('fetchBtn');
-
-      // Show loading overlay
-      overlay.classList.add('active');
-      fetchBtn.disabled = true;
-      fetchBtn.style.opacity = '0.5';
-      statusEl.textContent = 'Connecting…';
-      statusEl.style.color = '#FF8C3A';
-
-      try {
-        const endpoint = `http://localhost:3000/stream?url=${encodeURIComponent(inputUrl)}`;
-        const response = await fetch(endpoint);
-
-        if (!response.ok) {
-          throw new Error(`Server responded with ${response.status}`);
+            // Eğer girilen değer direkt YouTube linkiyse
+            if (query.includes('youtube.com/') || query.includes('youtu.be/')) {
+                fetchAndPlay(query, "Doğrudan URL Videosu");
+            } else {
+                // Kelime girildiyse arama yap
+                showLoading(true);
+                try {
+                    const res = await fetch(`${BACKEND_URL}/search?q=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+                    renderSearchResults(data.videos || []);
+                } catch (err) {
+                    alert('Backend bağlantısı başarısız bra! Termux açık mı?');
+                } finally {
+                    showLoading(false);
+                }
+            }
         }
 
-        const data = await response.json();
+        // Arama Sonuçlarını Listeleme
+        function renderSearchResults(videos) {
+            const container = document.getElementById('searchResults');
+            const section = document.getElementById('searchResultsSection');
+            container.innerHTML = '';
 
-        if (!data.streamUrl) {
-          throw new Error('No streamUrl in server response.');
+            if (videos.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            videos.forEach(video => {
+                const item = document.createElement('div');
+                item.className = 'flex space-x-3 bg-[#141414] p-2 rounded-lg border border-[#262626] cursor-pointer hover:border-[#FF6B00] transition';
+                item.onclick = () => fetchAndPlay(video.url, video.title, video.thumbnail);
+                item.innerHTML = `
+                    <div class="relative w-32 aspect-video bg-black rounded overflow-hidden flex-shrink-0">
+                        <img src="${video.thumbnail}" class="w-full h-full object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black/80 text-[10px] px-1 rounded text-white">${video.duration || '00:00'}</span>
+                    </div>
+                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                        <h4 class="text-sm font-medium text-white line-clamp-2 leading-tight">${video.title}</h4>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
         }
 
-        // Populate video
-        idleScr.style.display = 'none';
-        video.style.display   = 'block';
-        video.src             = data.streamUrl;
+        // Videoyu Backend'den Çekip Oynatma ve Geçmişe Ekleme
+        async function fetchAndPlay(url, title, thumbnail = 'tupi1.jpg') {
+            showLoading(true);
+            try {
+                const res = await fetch(`${BACKEND_URL}/stream?url=${encodeURIComponent(url)}`);
+                const data = await res.json();
 
-        // Fill mock details
-        document.getElementById('videoTitle').textContent    = data.title    || pickRandom(mockTitles);
-        document.getElementById('viewCount').textContent     = data.views    || pickRandom(mockViews);
-        document.getElementById('videoDuration').textContent = data.duration || pickRandom(mockDurations);
-        statusEl.textContent  = 'Live Stream';
-        statusEl.style.color  = '#4ADE80';
+                if (data.streamUrl) {
+                    currentStreamUrl = data.streamUrl;
+                    currentVideoTitle = title;
 
-        // Hide overlay then play
-        overlay.classList.remove('active');
-        video.play().catch(() => {/* autoplay blocked – user can press play */});
+                    const player = document.getElementById('mainPlayer');
+                    player.src = data.streamUrl;
+                    player.play();
 
-      } catch (err) {
-        overlay.classList.remove('active');
-        statusEl.textContent = 'Failed';
-        statusEl.style.color = '#F87171';
-        showToast(`Error: ${err.message}`);
-        console.error('[TupiTube]', err);
-      } finally {
-        fetchBtn.disabled    = false;
-        fetchBtn.style.opacity = '1';
-      }
-    }
-  </script>
+                    document.getElementById('videoTitle').innerText = title;
+                    document.getElementById('downloadBtn').classList.remove('hidden');
+                    document.getElementById('downloadBtn').classList.add('flex');
 
+                    // Geçmişe kaydet
+                    saveToHistory({ title, url, thumbnail });
+                } else {
+                    alert('Video adresi alınamadı.');
+                }
+            } catch (err) {
+                alert('Akış çekilirken hata oluştu.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Cihaza İndirme Butonu Mantığı
+        function downloadCurrentVideo() {
+            if (!currentStreamUrl) return;
+            // Tarayıcı/Uygulama üzerinden indirmeyi tetikler
+            const a = document.createElement('a');
+            a.href = currentStreamUrl;
+            a.download = `${currentVideoTitle || 'video'}.mp4`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // LocalStorage ile İzleme Geçmişi Yönetimi
+        function saveToHistory(video) {
+            let history = JSON.parse(localStorage.getItem('tupi_history')) || [];
+            // Aynı video varsa listeden eski halini sil (en başa gelsin)
+            history = history.filter(item => item.url !== video.url);
+            history.unshift(video);
+            // Sınır: Son 10 videoyu tut
+            if (history.length > 10) history.pop();
+            localStorage.setItem('tupi_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            container.innerHTML = '';
+            const history = JSON.parse(localStorage.getItem('tupi_history')) || [];
+
+            if (history.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-500 italic">Henüz izleme geçmişi yok bra.</p>';
+                return;
+            }
+
+            history.forEach(video => {
+                const item = document.createElement('div');
+                item.className = 'flex space-x-3 bg-[#111] p-2 rounded-lg border border-[#1f1f1f] cursor-pointer hover:border-gray-600 transition';
+                item.onclick = () => fetchAndPlay(video.url, video.title, video.thumbnail);
+                item.innerHTML = `
+                    <img src="${video.thumbnail}" class="w-20 aspect-video object-cover bg-black rounded flex-shrink-0">
+                    <div class="flex-1 min-w-0 flex items-center">
+                        <h4 class="text-xs text-gray-300 line-clamp-2 leading-snug">${video.title}</h4>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('tupi_history');
+            renderHistory();
+        }
+
+        function showLoading(status) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (status) overlay.classList.remove('hidden');
+            else overlay.classList.add('hidden');
+        }
+    </script>
 </body>
-  </html>
+</html>
