@@ -1,0 +1,52 @@
+name: TupiTube APK Derleyici
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Kodu Klonla
+      uses: actions/checkout@v4
+
+    - name: Java Kurulumu
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Node.js Kur
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Cordova Kur
+      run: npm install -g cordova
+
+    - name: Cordova Projesi Oluştur
+      run: |
+        cordova create tupitube com.tupitube.app TupiTube
+        cd tupitube
+        cordova platform add android
+        
+    - name: Dosyaları Yerleştir
+      run: |
+        rm -rf tupitube/www/*
+        cp index.html tupitube/www/
+        cp tupi1.jpg tupitube/www/
+        cp tupi2.jpg tupitube/www/
+
+    - name: APK Derle
+      run: |
+        cd tupitube
+        cordova build android --debug
+
+    - name: APK'yı Çıkışa Ver
+      uses: actions/upload-artifact@v4
+      with:
+        name: TupiTube-Debug-APK
+        path: tupitube/platforms/android/app/build/outputs/apk/debug/app-debug.apk
